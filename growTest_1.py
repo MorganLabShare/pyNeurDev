@@ -19,9 +19,13 @@ class neuron:
         self.nodeArray = np.zeros([1,3])
         self.nodeList = []
     # make an array containing all the voxels that are within the soma
+        #this is super slow
     def getSomaArray(self):
         self.somaVoxArray = np.fromiter(itertools.chain(*itertools.product(range(self.size),repeat=3)), dtype=int).reshape(-1,3)
         self.nodeArray=np.append(self.nodeArray,self.somaVoxArray,axis=0)
+    
+    #make a LIST with the voxels
+        #this is way faster    
     def getSomaList(self):
         self.somaVoxList = list(itertools.product(range(self.size),repeat=3))
         self.nodeList.append(self.somaVoxList)
@@ -31,13 +35,14 @@ class neuron:
     def resting(self):
         self.isResting=1
 
-
+#Time to initialize is essentially zero. Probably because we haven't made anything
 startNeurGen=time.time()
 startAttribs=("steve",20)
 neur1 = neuron(startAttribs)
 finishNeurGen=time.time()
 print('neurGenTime=',finishNeurGen-startNeurGen)
 
+#The array method is super slow.
 startArray=time.time()
 neur1.getSomaArray()
 finishArray=time.time()
@@ -50,6 +55,7 @@ neur1.getSomaList()
 finishList=time.time()
 print('listTime=',finishList-startList)
 
+#Plotting the array is way faster than plotting the list
 def plotNeurArray(neur):
     startPlotArray=time.time()
     fig = plt.figure()
@@ -58,6 +64,7 @@ def plotNeurArray(neur):
     finishPlotArray=time.time()
     print('plotArray=',finishPlotArray-startPlotArray)
 
+#This is much slower than the array method. I will try it with a list->array step
 def plotNeurList(neur):
     startPlotList=time.time()
     fig = plt.figure()
@@ -65,6 +72,17 @@ def plotNeurList(neur):
     ax.scatter((zip(*neur.somaVoxList)[0]),(zip(*neur.somaVoxList)[1]),(zip(*neur.somaVoxList)[2]))
     finishPlotList=time.time()
     print('plotList=',finishPlotList-startPlotList)
+
+#This is seemingly the FASTEST, but that should be checked with scaling.
+def plotNeurList2Array(neur):
+    startPlotList2Array=time.time()
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    tempArray=np.array(neur.somaVoxList)
+    ax.scatter(tempArray[:,0],tempArray[:,1],tempArray[:,2])
+    finishPlotList2Array=time.time()
+    print('plotList=',finishPlotList2Array-startPlotList2Array)
+
 
 #import code
 #code.interact(local=locals())
